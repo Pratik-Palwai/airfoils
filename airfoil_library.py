@@ -1,4 +1,7 @@
 import numpy
+import time
+
+root_dir = "C:\\Users\\palwa\\Desktop\\code\\software\\python\\dbf\\"
 
 def readFoil(afl_path):
     """Returns a list of airfoil points: [[chord points], [camber line points], [airfoil envelope points]]"""
@@ -110,15 +113,39 @@ def createFoil(max_camber, max_camber_pos, relative_thickness, num_points):
     envelope_points = envelope_quadrants[0][::-1] + envelope_quadrants[1][::-1] + envelope_quadrants[2][1:] + envelope_quadrants[3]
     return [camber_points, envelope_points]
 
-def readGCode(gcode_path):
-    """Returns a list of G-code moves: [[x1, y1, a1, b1], [x2, y2, a2, b2], ... ]"""
-    file_gcode = open(gcode_path, "r")
-    movements = []
+def applyKerfOffset(airfoil_points, kerf_offset=0):
+    """Apply given kerf radius offset to airfoil points"""
+    kerf_points = [] * len(airfoil_points)
+    kerf_points.append([airfoil_points[0][0], airfoil_points[0][1] + kerf_offset])
 
-    for command in file_gcode.readlines():
-        if command[0] == ";":
-            continue
-        coords = [float(axis[1:]) for axis in command.split()[1:-1]]
-        movements.append(coords)
+    for i in range(1, len(airfoil_points) - 1):
+        previous = airfoil_points[i - 1]
+        next = airfoil_points[i + 1]
 
-        print("Coordinate:", coords)
+        dy = next[1] - previous[1]
+        dx = next[0] - previous[0]
+        angle = numpy.arctan2(dy, dx)
+        
+        theta_f = angle + (numpy.pi / 2)
+        normal_vector = [numpy.cos(theta_f), numpy.sin(theta_f)]
+        
+        x_f = airfoil_points[i][0] + (kerf_offset * normal_vector[0])
+        y_f = airfoil_points[i][1] + (kerf_offset * normal_vector[1])
+
+        kerf_points.append([x_f, y_f])
+    
+    kerf_points.append(kerf_points[0])
+
+    return kerf_points
+
+def inverseTime(delta_x, delta_y, delta_a, delta_z, middle_feedrate):
+    """Returns the amount of time it should take to complete the move based on requested feedrate (mm/s) at center of wire"""
+    delta_x_mid = (delta_x + delta_a) / 2.0
+    delta_y_mid = (delta_y + delta_z) / 2.0
+    displacement_mid = ((delta_x_mid ** 2) + (delta_y_mid ** 2)) ** 0.5
+
+    delta_t = displacement_mid / middle_feedrate
+    delta_t = delta_t / 60
+    delta_t = 1 / delta_t
+
+    return round(delta_t, 6)

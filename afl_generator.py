@@ -1,12 +1,12 @@
 import airfoil_library
 
-M = 0.09
+M = 0.04
 P = 0.40
-K = 0.15
+K = 0.12
 # For example, a NACA 4412 airfoil will have a max camber of 4% chord (M = 0.04), max camber at 40% chord (P = 0.40), and max thickness of 12% chord (K = 0.12)
 
 airfoil_code = str(int(M * 100)) + str(int(P * 10)) + str(int(K * 100))
-afl_path = "C:\\Users\\palwa\\Desktop\\code\\software\\python\\dbf\\airfoils\\" + airfoil_code + ".afl"
+afl_path = airfoil_library.root_dir + "airfoils\\" + airfoil_code + ".afl"
 afl_file = open(afl_path, "w")
 
 [camber_line_points, envelope_points] = airfoil_library.createFoil(max_camber=M, max_camber_pos=P, relative_thickness=K, num_points=50)

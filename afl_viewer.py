@@ -1,7 +1,9 @@
 import airfoil_library
 import turtle
 
-lines = airfoil_library.readFoil(afl_path="C:\\Users\\palwa\\Desktop\\code\\software\\python\\dbf\\airfoils\\9415.afl")
+draw_filepath = airfoil_library.root_dir + "airfoils\\4412.afl"
+
+lines = airfoil_library.readFoil(afl_path=draw_filepath)
 window_chord = 500
 
 chord_line = airfoil_library.setChord(lines[0], chord=window_chord)

@@ -1,10 +1,9 @@
 import airfoil_library
 
-prefix = "C:\\Users\\palwa\\Desktop\\code\\software\\python\\dbf\\airfoils\\"
-suffix = "9415.afl"
+suffix = "6414.afl"
 
-input_path = prefix + suffix
-crv_path = prefix + suffix[:4] + ".sldcrv"
+input_path = airfoil_library.root_dir + "airfoils\\" + suffix
+crv_path = airfoil_library.root_dir + "curves\\" + suffix[:4] + ".sldcrv"
 crv_file = open(crv_path, "w")
 
 zero_index = 0 
