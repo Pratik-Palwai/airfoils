@@ -3,6 +3,54 @@ import time
 
 root_dir = "C:\\Users\\palwa\\Desktop\\code\\software\\python\\dbf\\"
 
+def createFoil(max_camber, max_camber_pos, relative_thickness, num_points):
+    """Returns a list with two sets of points: [[x, camber], [x, envelope]]"""
+    M = max_camber
+    P = max_camber_pos
+    T = relative_thickness
+
+    x_coordinates = cosineSpacing(num_points=num_points)
+    camber_points = []
+    envelope_quadrants = [[], [], [], []]
+
+    for x in x_coordinates:
+        thickness = (5 * T) * ((0.2969 * (x ** 0.5)) + (-0.1260 * x) + (-0.3516 * (x ** 2)) + (0.2843 * (x ** 3)) + (-0.1036 * (x ** 4)))
+
+        if x < P:
+            camber = (M / (P ** 2)) * ((2 * P * x) - (x ** 2))
+            camber_points.append([x, camber])
+
+            dy_c = (2 * M / (P ** 2)) * (P - x)
+            theta = numpy.arctan(dy_c) + (numpy.pi / 2)
+
+            gradient = [numpy.cos(theta), numpy.sin(theta)]
+            k_vector = [(thickness * i) for i in gradient]
+
+            top_envelope_vector = [(x + k_vector[0]), (camber + k_vector[1])]
+            bottom_envelope_vector = [(x - k_vector[0]), (camber - k_vector[1])]
+
+            envelope_quadrants[1].append(top_envelope_vector)
+            envelope_quadrants[2].append(bottom_envelope_vector)
+        
+        else:
+            camber = (M / ((1 - P) ** 2)) * (1 - (2 * P) + (2 * P * x) - (x ** 2))
+            camber_points.append([x, camber])
+
+            dy_c = ((2 * M) / ((1 - P) ** 2)) * (P - x)
+            theta = numpy.arctan(dy_c) + (numpy.pi / 2)
+
+            gradient = [numpy.cos(theta), numpy.sin(theta)]
+            k_vector = [(thickness * i) for i in gradient]
+
+            top_envelope_vector = [(x + k_vector[0]), (camber + k_vector[1])]
+            bottom_envelope_vector = [(x - k_vector[0]), (camber - k_vector[1])]
+
+            envelope_quadrants[0].append(top_envelope_vector)
+            envelope_quadrants[3].append(bottom_envelope_vector)
+
+    envelope_points = envelope_quadrants[0][::-1] + envelope_quadrants[1][::-1] + envelope_quadrants[2][1:] + envelope_quadrants[3]
+    return [camber_points, envelope_points]
+
 def readFoil(afl_path):
     """Returns a list of airfoil points: [[chord points], [camber line points], [airfoil envelope points]]"""
     afl_file = open(afl_path, "r")
@@ -64,54 +112,6 @@ def cosineSpacing(num_points):
         x_coords.append(location)
     
     return x_coords
-
-def createFoil(max_camber, max_camber_pos, relative_thickness, num_points):
-    """Returns a list with two sets of points: [[x, camber], [x, envelope]]"""
-    M = max_camber
-    P = max_camber_pos
-    T = relative_thickness
-
-    x_coordinates = cosineSpacing(num_points=num_points)
-    camber_points = []
-    envelope_quadrants = [[], [], [], []]
-
-    for x in x_coordinates:
-        thickness = (5 * T) * ((0.2969 * (x ** 0.5)) + (-0.1260 * x) + (-0.3516 * (x ** 2)) + (0.2843 * (x ** 3)) + (-0.1036 * (x ** 4)))
-
-        if x < P:
-            camber = (M / (P ** 2)) * ((2 * P * x) - (x ** 2))
-            camber_points.append([x, camber])
-
-            dy_c = (2 * M / (P ** 2)) * (P - x)
-            theta = numpy.arctan(dy_c) + (numpy.pi / 2)
-
-            gradient = [numpy.cos(theta), numpy.sin(theta)]
-            k_vector = [(thickness * i) for i in gradient]
-
-            top_envelope_vector = [(x + k_vector[0]), (camber + k_vector[1])]
-            bottom_envelope_vector = [(x - k_vector[0]), (camber - k_vector[1])]
-
-            envelope_quadrants[1].append(top_envelope_vector)
-            envelope_quadrants[2].append(bottom_envelope_vector)
-        
-        else:
-            camber = (M / ((1 - P) ** 2)) * (1 - (2 * P) + (2 * P * x) - (x ** 2))
-            camber_points.append([x, camber])
-
-            dy_c = ((2 * M) / ((1 - P) ** 2)) * (P - x)
-            theta = numpy.arctan(dy_c) + (numpy.pi / 2)
-
-            gradient = [numpy.cos(theta), numpy.sin(theta)]
-            k_vector = [(thickness * i) for i in gradient]
-
-            top_envelope_vector = [(x + k_vector[0]), (camber + k_vector[1])]
-            bottom_envelope_vector = [(x - k_vector[0]), (camber - k_vector[1])]
-
-            envelope_quadrants[0].append(top_envelope_vector)
-            envelope_quadrants[3].append(bottom_envelope_vector)
-
-    envelope_points = envelope_quadrants[0][::-1] + envelope_quadrants[1][::-1] + envelope_quadrants[2][1:] + envelope_quadrants[3]
-    return [camber_points, envelope_points]
 
 def applyKerfOffset(airfoil_points, kerf_offset=0):
     """Apply given kerf radius offset to airfoil points"""
