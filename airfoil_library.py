@@ -113,39 +113,35 @@ def cosineSpacing(num_points):
     
     return x_coords
 
-def applyKerfOffset(airfoil_points, kerf_offset=0):
-    """Apply given kerf radius offset to airfoil points"""
-    kerf_points = [] * len(airfoil_points)
-    kerf_points.append([airfoil_points[0][0], airfoil_points[0][1] + kerf_offset])
-
-    for i in range(1, len(airfoil_points) - 1):
-        previous = airfoil_points[i - 1]
-        next = airfoil_points[i + 1]
-
-        dy = next[1] - previous[1]
-        dx = next[0] - previous[0]
-        angle = numpy.arctan2(dy, dx)
-        
-        theta_f = angle + (numpy.pi / 2)
-        normal_vector = [numpy.cos(theta_f), numpy.sin(theta_f)]
-        
-        x_f = airfoil_points[i][0] + (kerf_offset * normal_vector[0])
-        y_f = airfoil_points[i][1] + (kerf_offset * normal_vector[1])
-
-        kerf_points.append([x_f, y_f])
-    
-    kerf_points.append(kerf_points[0])
-
-    return kerf_points
-
 def inverseTime(delta_x, delta_y, delta_a, delta_z, middle_feedrate):
     """Returns the amount of time it should take to complete the move based on requested feedrate (mm/s) at center of wire"""
-    delta_x_mid = (delta_x + delta_a) / 2.0
-    delta_y_mid = (delta_y + delta_z) / 2.0
-    displacement_mid = ((delta_x_mid ** 2) + (delta_y_mid ** 2)) ** 0.5
+    delta_x_midpoint = (delta_x + delta_a) / 2.0
+    delta_y_midpoint = (delta_y + delta_z) / 2.0
+    displacement_mid = ((delta_x_midpoint ** 2) + (delta_y_midpoint ** 2)) ** 0.5
 
     delta_t = displacement_mid / middle_feedrate
     delta_t = delta_t / 60
     delta_t = 1 / delta_t
 
     return round(delta_t, 6)
+
+def oppositePoint(point_root, point_outboard, plane_distance):
+    """Generates root-opposite point [x_o, y_o] based on the airfoil points and tower distance"""
+    wire_vector = []
+    for i in range(len(point_root)):
+        wire_vector.append(point_outboard[i] - point_root[i])
+
+    scalar = plane_distance / wire_vector[2]
+    wire_vector = [c * scalar for c in wire_vector]
+
+    return [wire_vector[0], wire_vector[1]]
+
+def moveCommand(dx, dy, da, dz, f):
+    """Generates G1 movement command given axis coordinates and feedrate"""
+    dx = round(dx, 4)
+    dy = round(dy, 4)
+    dz = round(dz, 4)
+    da = round(da, 4)
+    f = round(f, 6)
+
+    return "G1 X" + str(dx) + " Y" + str(dy) + " A" + str(da) + " Z" + str(dz) + " F" + str(f) + "\n"
