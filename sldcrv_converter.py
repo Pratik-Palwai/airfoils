@@ -1,12 +1,12 @@
 import airfoil_library
 
-suffix = "6414.afl"
+suffix = "0016.afl"
 
 input_path = airfoil_library.root_dir + "airfoils\\" + suffix
 crv_path = airfoil_library.root_dir + "curves\\" + suffix[:4] + ".sldcrv"
 crv_file = open(crv_path, "w")
 
-zero_index = 0 
+zero_index = 1 
 # index of 0 means x-zero, curve is on right plane
 # index of 1 means y-zero, curve is on top plane
 # index of 2 means z-zero, curve is on front plane

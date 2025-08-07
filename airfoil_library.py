@@ -76,7 +76,7 @@ def readDat(dat_path):
     dat_file = open(dat_path, "r")
     envelope_points = []
 
-    for line in dat_file.readlines()[1:]:
+    for line in dat_file.readlines():
         point = []
 
         for coordinate in line.split():
@@ -127,21 +127,36 @@ def inverseTime(delta_x, delta_y, delta_a, delta_z, middle_feedrate):
 
 def oppositePoint(point_root, point_outboard, plane_distance):
     """Generates root-opposite point [x_o, y_o] based on the airfoil points and tower distance"""
-    wire_vector = []
+    wire_vector = [0, 0, 0]
+
     for i in range(len(point_root)):
-        wire_vector.append(point_outboard[i] - point_root[i])
+        wire_vector[i] = (point_outboard[i] - point_root[i])
 
     scalar = plane_distance / wire_vector[2]
-    wire_vector = [c * scalar for c in wire_vector]
+    wire_vector = [i * scalar for i in wire_vector]
 
-    return [wire_vector[0], wire_vector[1]]
+    return [wire_vector[0] + point_root[0], wire_vector[1] + point_root[1]]
 
-def moveCommand(dx, dy, da, dz, f):
+def moveCommand(dx, dy, da, dz, dt):
     """Generates G1 movement command given axis coordinates and feedrate"""
-    dx = round(dx, 4)
-    dy = round(dy, 4)
-    dz = round(dz, 4)
-    da = round(da, 4)
-    f = round(f, 6)
+    x = round(dx, 4)
+    y = round(dy, 4)
+    a = round(da, 4)
+    z = round(dz, 4)
+    t = round(dt, 6)
 
-    return "G1 X" + str(dx) + " Y" + str(dy) + " A" + str(da) + " Z" + str(dz) + " F" + str(f) + "\n"
+    if (x > 425) or (a > 425) or (y > 325) or (z > 325):
+        print("Warning: G-code will make machine move outside of boundaries")
+
+    return "G1 X" + str(x) + " Y" + str(y) + " A" + str(a) + " Z" + str(z) + " F" + str(t) + "\n"
+
+def gcodeHeader(feed_mode, wire_power=0):
+    s = "G21 ; Set units to millimters\n"
+    s += "G90 ; Activate absolute coordinate system mode\n"
+    s += "G30 ; Home XYAZ axes\n"
+    s += "M3 S" + str(wire_power * 10) + " ; Set hot wire power to " + str(wire_power) + " percent\n\n"
+
+    if feed_mode == "inverse":
+        s += "G93 ; Activate inverse time motion mode\n"
+    
+    return s

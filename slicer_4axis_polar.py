@@ -2,13 +2,13 @@ import airfoil_library
 
 file_airfoil = airfoil_library.root_dir + "airfoils\\6415.afl"
 
-chord_root = 400 # mm
-chord_outboard = 300 # mm
-outboard_offset = 25 # mm
+chord_root = 279.40 # mm
+chord_outboard = 177.80 # mm
+outboard_offset = 177.80 # mm
 half_span = 609.6 # mm
 
 feedrate = 2000 # mm/min
-chord_height = 24.5 # mm
+chord_height = 50.8 # mm
 tower_distance = 914.4 # mm
 root_plane = 0 # 0 places root on XY tower, 1 places root on AZ tower
 
@@ -34,15 +34,11 @@ for i in range(len(points_root)):
     points_opposite.append(opposite_point)
 
 gcode_file.write("; Airfoil: NACA " + file_airfoil[-8:-4] + "\n")
-gcode_file.write("; Root chord: " + str(chord_root) + " mm\n")
+gcode_file.write("; Root chord: " + str(chord_root) + " mm | Half span: " + str(half_span) + " mm\n")
 gcode_file.write("; Outboard chord: " + str(chord_outboard) + " mm | Outboard offset: " + str(outboard_offset) + " mm\n")
 gcode_file.write("; Requested feedrate: " + str(feedrate) + "mm/s | Chord height: " + str(chord_height) + " mm\n\n")
 
-gcode_file.write("G21 ; Set units to millimeters\n")
-# gcode_file.write("G30 ; Home XYAZ axes\n")
-gcode_file.write("G93 ; Activate inverse time motion mode\n")
-gcode_file.write("G90 ; Activate absolute coordinate system mode\n")
-# gcode_file.write("M3 S100; Set hot wire to 10% power\n")
+gcode_file.write(airfoil_library.gcodeHeader(feed_mode="inverse", wire_power=10))
 
 if root_plane == 0:
     points_left = points_root
