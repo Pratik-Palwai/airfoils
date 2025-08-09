@@ -1,7 +1,7 @@
 import airfoil_library
 import turtle
 
-draw_filepath = airfoil_library.root_dir + "airfoils\\0016.afl"
+draw_filepath = airfoil_library.root_dir + "airfoils\\4414.afl"
 
 lines = airfoil_library.readFoil(afl_path=draw_filepath)
 window_chord = 500

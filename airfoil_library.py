@@ -114,13 +114,12 @@ def cosineSpacing(num_points):
     return x_coords
 
 def inverseTime(delta_x, delta_y, delta_a, delta_z, middle_feedrate):
-    """Returns the amount of time it should take to complete the move based on requested feedrate (mm/s) at center of wire"""
-    delta_x_midpoint = (delta_x + delta_a) / 2.0
-    delta_y_midpoint = (delta_y + delta_z) / 2.0
-    displacement_mid = ((delta_x_midpoint ** 2) + (delta_y_midpoint ** 2)) ** 0.5
+    """Returns the amount of time it should take to complete the move based on requested feedrate (mm/min) at center of wire"""
+    delta_h = (delta_x + delta_a) / 2.0
+    delta_v = (delta_y + delta_z) / 2.0
+    displacement_mid = ((delta_h ** 2) + (delta_v ** 2)) ** 0.5
 
     delta_t = displacement_mid / middle_feedrate
-    delta_t = delta_t / 60
     delta_t = 1 / delta_t
 
     return round(delta_t, 6)
@@ -137,7 +136,7 @@ def oppositePoint(point_root, point_outboard, plane_distance):
 
     return [wire_vector[0] + point_root[0], wire_vector[1] + point_root[1]]
 
-def moveCommand(dx, dy, da, dz, dt):
+def moveCommand(dx=0, dy=0, da=0, dz=0, dt=1, error_check=True):
     """Generates G1 movement command given axis coordinates and feedrate"""
     x = round(dx, 4)
     y = round(dy, 4)
@@ -145,18 +144,39 @@ def moveCommand(dx, dy, da, dz, dt):
     z = round(dz, 4)
     t = round(dt, 6)
 
-    if (x > 425) or (a > 425) or (y > 325) or (z > 325):
-        print("Warning: G-code will make machine move outside of boundaries")
+    warning_front = "G-code makes axis move outside of machine boundaries: "
+    
+    if error_check:
+        if (x < 0) or (x > 425):
+            print(warning_front + "X = " + str(x))
+        if (y < 0) or (y > 325):
+            print(warning_front + "Y = " + str(y))
+        if (z < 0) or (z > 325):
+            print(warning_front + "Z = " + str(z))
+        if (a < 0) or (a > 425):
+            print(warning_front + "A = " + str(a))
 
     return "G1 X" + str(x) + " Y" + str(y) + " A" + str(a) + " Z" + str(z) + " F" + str(t) + "\n"
 
-def gcodeHeader(feed_mode, wire_power=0):
+def move2Axis(dx=0, dy=0, dt=1, error_check=True):
+    return moveCommand(dx, dy, dx, dy, dt, error_check)
+
+def gcodeHeader(feed_mode="conventional", wire_power=0, coordinate="absolute", homing=True):
     s = "G21 ; Set units to millimters\n"
-    s += "G90 ; Activate absolute coordinate system mode\n"
-    s += "G30 ; Home XYAZ axes\n"
-    s += "M3 S" + str(wire_power * 10) + " ; Set hot wire power to " + str(wire_power) + " percent\n\n"
+
+    if coordinate == "absolute":
+        s += "G90 ; Activate absolute coordinate system mode\n"
+    elif coordinate == "relative":
+        s += "G91 ; Activate relative coordinate system mode\n"
+
+    if homing:
+        s += "G30 ; Home XYAZ axes\n"
+    
+    s += "M3 S" + str(wire_power * 10) + " ; Set hot wire to " + str(wire_power) + " percent power\n"
 
     if feed_mode == "inverse":
         s += "G93 ; Activate inverse time motion mode\n"
+    elif feed_mode == "conventional":
+        s += "G94 ; Activate units/mm motion mode\n"
     
-    return s
+    return s + "\n"

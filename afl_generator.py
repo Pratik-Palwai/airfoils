@@ -1,8 +1,8 @@
 import airfoil_library
 
-M = 0.06
+M = 0.04
 P = 0.40
-K = 0.15
+K = 0.14
 # for example, a NACA 4412 airfoil will have a max camber of 4% chord (M = 0.04), max camber at 40% chord (P = 0.40), and max thickness of 12% chord (K = 0.12)
 
 airfoil_code = str(int(M * 100)) + str(int(P * 10)) + str(int(K * 100))

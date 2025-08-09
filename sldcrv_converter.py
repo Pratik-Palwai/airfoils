@@ -1,9 +1,12 @@
 import airfoil_library
 
-suffix = "0016.afl"
+suffix = "fuselage.dat"
+file_extension = suffix.split(".")[-1]
+file_name = suffix.split(".")[0]
 
 input_path = airfoil_library.root_dir + "airfoils\\" + suffix
-crv_path = airfoil_library.root_dir + "curves\\" + suffix[:4] + ".sldcrv"
+
+crv_path = airfoil_library.root_dir + "curves\\" + file_name + ".sldcrv"
 crv_file = open(crv_path, "w")
 
 zero_index = 1 
@@ -11,9 +14,9 @@ zero_index = 1
 # index of 1 means y-zero, curve is on top plane
 # index of 2 means z-zero, curve is on front plane
 
-if input_path[-3:] == "afl":
+if file_extension == "afl":
     points = airfoil_library.readFoil(afl_path=input_path)[2]
-elif input_path[-3:] == "dat":
+elif file_extension == "dat":
     points = airfoil_library.readDat(dat_path=input_path)
 
 for point in points:
