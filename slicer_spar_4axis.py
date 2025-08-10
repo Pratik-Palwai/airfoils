@@ -1,13 +1,13 @@
 import airfoil_library
 
 spar_radius = 12.7 # mm
-spar_x = 120 # center of spar will be this distance (+ ahead, - behind) current wire position (mm)
+spar_x = -101.60 * 0.7 # center of spar will be this distance (+ ahead, - behind) current wire position (mm)
 spar_y = 0 # center of spar will be this distance (+ above, - below) current wire position (mm)
 clearance_y = -20 # wire will initially move up/down (+/-), move x amount, and then move down/up (+/-) to provide clearance (mm)
 # useful for moving around the airfoil when the cut is done and the wire is at the trailing edge
 
-feedrate = 200 # mm/min
-rapid_feedrate = 500 # rapid feedrate to exit spar hole after cutting (mm/min)
+feedrate = 1000 # mm/min
+rapid_feedrate = 1500 # rapid feedrate to exit spar hole after cutting (mm/min)
 points = 50 # number of points to approximate spar circle
 
 output_file_path = airfoil_library.root_dir + "gcodes//spar_" + str(int(airfoil_library.time.time())) + "_4axis.cnc"

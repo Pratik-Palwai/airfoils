@@ -4,7 +4,7 @@ import time
 root_dir = "C:\\Users\\palwa\\Desktop\\code\\software\\python\\dbf\\"
 
 def createFoil(max_camber, max_camber_pos, relative_thickness, num_points):
-    """Returns a list with two sets of points: [[x, camber], [x, envelope]]"""
+    """Returns a list of airfoil envelope points starting from the trailing edge"""
     M = max_camber
     P = max_camber_pos
     T = relative_thickness
@@ -49,40 +49,21 @@ def createFoil(max_camber, max_camber_pos, relative_thickness, num_points):
             envelope_quadrants[3].append(bottom_envelope_vector)
 
     envelope_points = envelope_quadrants[0][::-1] + envelope_quadrants[1][::-1] + envelope_quadrants[2][1:] + envelope_quadrants[3]
-    return [camber_points, envelope_points]
-
-def readFoil(afl_path):
-    """Returns a list of airfoil points: [[chord points], [camber line points], [airfoil envelope points]]"""
-    afl_file = open(afl_path, "r")
-    segments = [[], [], []]
-    state = 0 # 0 state is chord line, 1 state is camber line, 2 state is airfoil envelope
-
-    for line in afl_file.readlines()[2:]:
-        if line[0] == "_":
-            state = state + 1
-            continue
-
-        position_vector = []
-        for coordinate in line.split():
-            position_vector.append(float(coordinate))
-        if position_vector != []:
-            segments[state].append(position_vector)
-        
-    afl_file.close()    
-    return segments
+    return envelope_points
 
 def readDat(dat_path):
-    """Returns a list of airfoil points from a dat file, without chord or camber line data"""
+    """Returns a list of airfoil points from a dat file"""
     dat_file = open(dat_path, "r")
     envelope_points = []
 
     for line in dat_file.readlines():
-        point = []
+        if line[0] != "_":
+            point = []
 
-        for coordinate in line.split():
-            point.append(float(coordinate))
-        if point != []:
-            envelope_points.append(point)
+            for coordinate in line.split():
+                point.append(float(coordinate))
+            if point != []:
+                envelope_points.append(point)
     
     return envelope_points
 
@@ -159,9 +140,11 @@ def moveCommand(dx=0, dy=0, da=0, dz=0, dt=1, error_check=True):
     return "G1 X" + str(x) + " Y" + str(y) + " A" + str(a) + " Z" + str(z) + " F" + str(t) + "\n"
 
 def move2Axis(dx=0, dy=0, dt=1, error_check=True):
+    """Simplified 2-axis move requiring only X Y and F sections"""
     return moveCommand(dx, dy, dx, dy, dt, error_check)
 
 def gcodeHeader(feed_mode="conventional", wire_power=0, coordinate="absolute", homing=True):
+    """Returns a string with the specified G-code parameters to insert at beginning of CNC file"""
     s = "G21 ; Set units to millimters\n"
 
     if coordinate == "absolute":
@@ -180,3 +163,23 @@ def gcodeHeader(feed_mode="conventional", wire_power=0, coordinate="absolute", h
         s += "G94 ; Activate units/mm motion mode\n"
     
     return s + "\n"
+
+def saveDat(points):
+    """Returns a string containing contents of dat file given a set of points"""
+    s = ""
+    
+    for i in range(len(points)):
+        s += "  ".join(["{:.6f}".format(x) for x in points[i]])
+        s += "\n"
+    
+    return s
+
+def theta(v1, v2):
+    """Returns angle between two 2D vectors v1 and v2"""
+    dot = (v1[0] * v2[0]) + (v1[1] * v2[1])
+    norm1 = ((v1[0] ** 2) + (v1[1] ** 2)) ** 0.5
+    norm2 = ((v2[0] ** 2) + (v2[1] ** 2)) ** 0.5
+
+    cosine = dot / (norm1 * norm2)
+    radians = numpy.arccos(cosine)
+    return (180 * radians) / numpy.pi

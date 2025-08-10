@@ -1,6 +1,6 @@
 import airfoil_library
 
-file_airfoil = airfoil_library.root_dir + "airfoils\\6415.afl"
+file_airfoil = airfoil_library.root_dir + "airfoils\\4414.dat"
 
 chord_left = 400 # mm
 chord_right = 300 # mm
@@ -16,12 +16,8 @@ gcode_file = open(output_file_path, "w")
 file_extension = file_airfoil.split(".")[-1]
 file_name = file_airfoil.split("\\")[-1]
 
-if file_extension == "afl":
-    points_left = airfoil_library.readFoil(afl_path=file_airfoil)[2]
-    points_right = airfoil_library.readFoil(afl_path=file_airfoil)[2]
-elif file_extension == "dat":
-    points_left = airfoil_library.readDat(dat_path=file_airfoil)
-    points_right = airfoil_library.readDat(dat_path=file_airfoil)
+points_left = airfoil_library.readDat(dat_path=file_airfoil)
+points_right = airfoil_library.readDat(dat_path=file_airfoil)
 
 points_left = airfoil_library.setChord(airfoil_points=points_left, chord=chord_left)
 points_left = airfoil_library.applyOffset(airfoil_points=points_left, x_offset=offset_left, y_offset=chord_height)

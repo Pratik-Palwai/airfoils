@@ -1,6 +1,6 @@
 import airfoil_library
 
-file_airfoil = airfoil_library.root_dir + "airfoils\\0016.afl"
+file_airfoil = airfoil_library.root_dir + "airfoils\\4414.dat"
 
 chord_root = 177.80 # mm
 chord_outboard = 101.60 # mm
@@ -17,12 +17,12 @@ gcode_file = open(output_file_path, "w")
 file_extension = file_airfoil.split(".")[-1]
 file_name = file_airfoil.split("\\")[-1]
 
-points_root = airfoil_library.readFoil(afl_path=file_airfoil)[2]
+points_root = airfoil_library.readDat(dat_path=file_airfoil)[2]
 points_root = airfoil_library.setChord(airfoil_points=points_root, chord=chord_root)
 points_root = airfoil_library.applyOffset(airfoil_points=points_root, y_offset=chord_height)
 points_root = airfoil_library.applyOffset(airfoil_points=points_root, x_offset=1)
 
-points_outboard = airfoil_library.readFoil(afl_path=file_airfoil)[2]
+points_outboard = airfoil_library.readDat(dat_path=file_airfoil)[2]
 points_outboard = airfoil_library.setChord(airfoil_points=points_outboard, chord=chord_outboard)
 points_outboard = airfoil_library.applyOffset(airfoil_points=points_outboard, x_offset=outboard_offset, y_offset=chord_height)
 points_outboard = airfoil_library.applyOffset(airfoil_points=points_outboard, x_offset=1)
@@ -41,7 +41,7 @@ gcode_file.write("; Root chord: " + str(chord_root) + " mm | Half span: " + str(
 gcode_file.write("; Outboard chord: " + str(chord_outboard) + " mm | Outboard offset: " + str(outboard_offset) + " mm\n")
 gcode_file.write("; Requested feedrate: " + str(feedrate) + " mm/min | Chord height: " + str(chord_height) + " mm\n\n")
 
-gcode_file.write(airfoil_library.gcodeHeader(feed_mode="inverse", wire_power=10))
+gcode_file.write(airfoil_library.gcodeHeader(feed_mode="inverse", wire_power=10, homing=False))
 
 if root_plane == 0:
     points_left = points_root
