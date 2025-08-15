@@ -1,23 +1,20 @@
 import airfoil_library
-import turtle
+import matplotlib.pyplot as plt
 
-draw_filepath = airfoil_library.root_dir + "airfoils\\4414_back.dat"
+draw_filepath = airfoil_library.root_dir + "airfoils\\6414.dat"
+filename = draw_filepath.split("\\")[-1]
 
-envelope = airfoil_library.readDat(dat_path=draw_filepath)
-window_chord = 500
+airfoil_envelope = airfoil_library.readDat(dat_path=draw_filepath)
+airfoil_envelope = airfoil_library.setChord(airfoil_envelope, chord=1)
+airfoil_envelope_transpose = [[], []]
 
-airfoil_envelope = airfoil_library.setChord(envelope, chord=window_chord)
+for i in range(len(airfoil_envelope)):
+    airfoil_envelope_transpose[0].append(airfoil_envelope[i][0])
+    airfoil_envelope_transpose[1].append(airfoil_envelope[i][1])
 
-airfoil_envelope = airfoil_library.applyOffset(airfoil_points=airfoil_envelope, x_offset=-(window_chord / 2))
+plt.plot(airfoil_envelope_transpose[0], airfoil_envelope_transpose[1])
+plt.xlim(-0.1, 1.1)
+plt.gca().set_aspect("equal")
 
-plotter = turtle.Turtle(shape="blank")
-plotter.speed(0)
-
-plotter.color(1, 0, 0)
-plotter.penup()
-plotter.goto(airfoil_envelope[0])
-plotter.pendown()
-for coord in airfoil_envelope[1:]:
-    plotter.goto(coord)
-
-turtle.done()
+plt.title("Airfoil: " + filename)
+plt.show()

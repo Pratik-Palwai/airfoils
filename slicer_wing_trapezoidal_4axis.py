@@ -36,7 +36,7 @@ gcode_file.write(airfoil_library.gcodeHeader(feed_mode="inverse", wire_power=10)
 
 [x_i, y_i] = [points_left[0][0], points_left[0][1]]
 [a_i, z_i] = [points_right[0][0], points_right[0][1]]
-t_i = airfoil_library.inverseTime(delta_x=x_i, delta_y=y_i, delta_z=z_i, delta_a=a_i, middle_feedrate=2000)
+t_i = airfoil_library.inverseTime(x_i, y_i, z_i, a_i, 2000)
 gcode_file.write(airfoil_library.moveCommand(x_i, y_i, a_i, z_i, t_i))
 
 for i in range(1, len(points_left)):

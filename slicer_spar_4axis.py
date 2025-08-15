@@ -3,7 +3,7 @@ import airfoil_library
 spar_radius = 12.7 # mm
 spar_x = -101.60 * 0.7 # center of spar will be this distance (+ ahead, - behind) current wire position (mm)
 spar_y = 0 # center of spar will be this distance (+ above, - below) current wire position (mm)
-clearance_y = -20 # wire will initially move up/down (+/-), move x amount, and then move down/up (+/-) to provide clearance (mm)
+clearance_y = -45 # wire will initially move up/down (+/-), move x amount, and then move down/up (+/-) to provide clearance (mm)
 # useful for moving around the airfoil when the cut is done and the wire is at the trailing edge
 
 feedrate = 1000 # mm/min
@@ -13,10 +13,10 @@ points = 50 # number of points to approximate spar circle
 output_file_path = airfoil_library.root_dir + "gcodes//spar_" + str(int(airfoil_library.time.time())) + "_4axis.cnc"
 gcode_file = open(output_file_path, "w")
 
-gcode_file.write("Spar radius: " + str(spar_radius) + "\n")
-gcode_file.write("Relative X location: " + str(spar_x) + " mm | Relative Y location: " + str(spar_y) + " mm\n")
-gcode_file.write("Y clearance: " + str(clearance_y) + " mm\n")
-gcode_file.write("Requested feedrate: " + str(feedrate) + " mm/min\n")
+gcode_file.write("; Spar radius: " + str(spar_radius) + "\n")
+gcode_file.write("; Relative X location: " + str(spar_x) + " mm | Relative Y location: " + str(spar_y) + " mm\n")
+gcode_file.write("; Y clearance: " + str(clearance_y) + " mm\n")
+gcode_file.write("; Requested feedrate: " + str(feedrate) + " mm/min\n")
 gcode_file.write("\n")
 
 gcode_file.write(airfoil_library.gcodeHeader(wire_power=10, coordinate="relative", homing=False))

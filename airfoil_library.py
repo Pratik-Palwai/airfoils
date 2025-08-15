@@ -1,7 +1,11 @@
 import numpy
 import time
+import os
 
-root_dir = "C:\\Users\\palwa\\Desktop\\code\\software\\python\\dbf\\"
+directory = os.path.abspath(__file__)
+folders = directory.split("\\")[:-1]
+
+root_dir = "\\".join(folders) + "\\"
 
 def createFoil(max_camber, max_camber_pos, relative_thickness, num_points):
     """Returns a list of airfoil envelope points starting from the trailing edge"""
@@ -94,10 +98,10 @@ def cosineSpacing(num_points):
     
     return x_coords
 
-def inverseTime(delta_x, delta_y, delta_a, delta_z, middle_feedrate):
+def inverseTime(dx, dy, da, dz, middle_feedrate):
     """Returns the amount of time it should take to complete the move based on requested feedrate (mm/min) at center of wire"""
-    delta_h = (delta_x + delta_a) / 2.0
-    delta_v = (delta_y + delta_z) / 2.0
+    delta_h = (dx + da) / 2.0
+    delta_v = (dy + dz) / 2.0
     displacement_mid = ((delta_h ** 2) + (delta_v ** 2)) ** 0.5
 
     delta_t = displacement_mid / middle_feedrate
@@ -174,7 +178,7 @@ def saveDat(points):
     
     return s
 
-def theta(v1, v2):
+def vectorAngle(v1, v2):
     """Returns angle between two 2D vectors v1 and v2"""
     dot = (v1[0] * v2[0]) + (v1[1] * v2[1])
     norm1 = ((v1[0] ** 2) + (v1[1] ** 2)) ** 0.5

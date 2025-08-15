@@ -1,14 +1,14 @@
 import airfoil_library
 
-file_airfoil = airfoil_library.root_dir + "airfoils\\4414.dat"
+file_airfoil = airfoil_library.root_dir + "airfoils\\6414.dat"
 
-chord_root = 177.80 # mm
-chord_outboard = 101.60 # mm
-outboard_offset = 101.60 # mm
-half_span = 304.80 # mm
+chord_root = 150 # mm
+chord_outboard = 100 # mm
+outboard_offset = 50 # mm
+half_span = 21 * 25.4 # mm
 
-feedrate = 1000 # mm/min
-chord_height = 50.8 # mm
+feedrate = 50 # mm/min
+chord_height = 25.4 # mm
 tower_distance = 914.4 # mm
 root_plane = 0 # 0 places root on XY tower, 1 places root on AZ tower
 
@@ -17,15 +17,15 @@ gcode_file = open(output_file_path, "w")
 file_extension = file_airfoil.split(".")[-1]
 file_name = file_airfoil.split("\\")[-1]
 
-points_root = airfoil_library.readDat(dat_path=file_airfoil)[2]
+points_root = airfoil_library.readDat(dat_path=file_airfoil)
 points_root = airfoil_library.setChord(airfoil_points=points_root, chord=chord_root)
 points_root = airfoil_library.applyOffset(airfoil_points=points_root, y_offset=chord_height)
-points_root = airfoil_library.applyOffset(airfoil_points=points_root, x_offset=1)
+points_root = airfoil_library.applyOffset(airfoil_points=points_root, x_offset=100)
 
-points_outboard = airfoil_library.readDat(dat_path=file_airfoil)[2]
+points_outboard = airfoil_library.readDat(dat_path=file_airfoil)
 points_outboard = airfoil_library.setChord(airfoil_points=points_outboard, chord=chord_outboard)
 points_outboard = airfoil_library.applyOffset(airfoil_points=points_outboard, x_offset=outboard_offset, y_offset=chord_height)
-points_outboard = airfoil_library.applyOffset(airfoil_points=points_outboard, x_offset=1)
+points_outboard = airfoil_library.applyOffset(airfoil_points=points_outboard, x_offset=100)
 
 points_opposite = []
 
@@ -52,7 +52,7 @@ elif root_plane == 1:
 
 [x_i, y_i] = [points_left[0][0], points_left[0][1]]
 [a_i, z_i] = [points_right[0][0], points_right[0][1]]
-t_i = airfoil_library.inverseTime(delta_x=x_i, delta_y=y_i, delta_z=z_i, delta_a=a_i, middle_feedrate=2000)
+t_i = airfoil_library.inverseTime(x_i, y_i, z_i, a_i, middle_feedrate=2000)
 gcode_file.write(airfoil_library.moveCommand(x_i, y_i, a_i, z_i, t_i))
 
 for i in range(1, len(points_left)):
