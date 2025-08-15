@@ -1,4 +1,1 @@
-We use these scripts in DBF to create airfoils, import them into Solidworks to design the plane, and create G-code for our four-axis CNC foam cutter. 
-Airfoils are stored as .afl files, which are similar to dat files but also contain chord and camber line data for plotting. 
-Scripts still work with regular dat files from airfoiltools however. 
-Ensure you have numpy and matplotlib installed
+We use these scripts in DBF to create airfoils, import them into Solidworks to design the plane, and create G-code for our four-axis CNC foam cutter. Airfoils are stored as dat files, you can generate NACA 4-digit airfoils or use airfoiltools.com. Ensure you have numpy and matplotlib installed
