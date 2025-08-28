@@ -7,12 +7,12 @@ fuselage_length = 914.4 # mm
 fuselage_height = 135 # height of fuselage top above the bed (mm)
 # cosmos EPS foam fuselages are 36"L x 5"H x 2.5"W and g-code starts from top rear corner
 
-output_file_path = airfoil_library.root_dir + "gcodes\\fuselage_" + str(int(airfoil_library.time.time())) + "_4axis.cnc"
+output_file_path = airfoil_library.root_dir + "gcodes\\fuselage_" + airfoil_library.cur_time + "_4axis.cnc"
 gcode_file = open(output_file_path, "w")
 file_extension = file_fuselage.split(".")[-1]
 
 if file_extension == "afl":
-    points = airfoil_library.readFoil(afl_path=file_fuselage)[2]
+    points = airfoil_library.readDat(afl_path=file_fuselage)[2]
 elif file_extension == "dat":
     points = airfoil_library.readDat(dat_path=file_fuselage)
 
@@ -23,7 +23,7 @@ gcode_file.write("; Fuselage 4-axis\n")
 gcode_file.write("; Chord: " + str(fuselage_length) + " mm | Chord height: " + str(fuselage_height) + " mm\n")
 gcode_file.write("; Requested feedrate: " + str(feedrate) + "mm/s | Chord height: " + str(fuselage_height) + " mm\n\n")
 
-gcode_file.write(airfoil_library.gcodeHeader(feed_mode="conventional", wire_power=10))
+gcode_file.write(airfoil_library.gcodeHeader(feed_mode="conventional", homing=True))
 
 [x_i, y_i] = [points[0][0], points[0][1]]
 gcode_file.write(airfoil_library.move2Axis(x_i, y_i, feedrate))
@@ -35,7 +35,7 @@ for i in range(1, len(points)):
     gcode_file.write(airfoil_library.move2Axis(x, y, feedrate))
 
 gcode_file.write("\n")
-gcode_file.write("M5 ; Turn hotwire off\n")
+gcode_file.write("G94 ; Return to units/mm motion mode\n")
 
 print("Wing g-code file:", output_file_path)
 gcode_file.close()

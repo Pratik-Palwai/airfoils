@@ -1,10 +1,10 @@
 import airfoil_library
 
-suffix = "fuselage.dat"
+suffix = "7414_spar.dat"
 file_extension = suffix.split(".")[-1]
 file_name = suffix.split(".")[0]
 
-zero_index = 1 
+zero_index = 0
 # index of 0 means x-zero, curve is on right plane
 # index of 1 means y-zero, curve is on top plane
 # index of 2 means z-zero, curve is on front plane
