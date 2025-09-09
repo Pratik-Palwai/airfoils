@@ -1,0 +1,5 @@
+Pink XPS foam: 250 mm/min
+Black EPS foam: 80 mm/min
+White Styrofoam: 100 mm/min
+
+Keep wire at 36V, and adjust during cut if needed

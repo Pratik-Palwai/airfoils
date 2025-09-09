@@ -1,7 +1,7 @@
 import airfoil_library
 import matplotlib.pyplot as plt
 
-airfoil_suffix = "4418.dat"
+airfoil_suffix = "6412.dat"
 split_point = 0.70 # portion of chord airfoil will be split at
 cutoff_angle_front = 25 # Angle from vertical front portion of airfoil will be cutoff (deg)
 cutoff_angle_back = 20 # Angle from vertical back portion of airfoil will be cutoff (deg)

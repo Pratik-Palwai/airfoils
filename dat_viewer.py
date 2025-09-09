@@ -1,7 +1,7 @@
 import airfoil_library
 import matplotlib.pyplot as plt
 
-draw_filepath = airfoil_library.root_dir + "airfoils\\3415.dat"
+draw_filepath = airfoil_library.root_dir + "airfoils\\6414.dat"
 filename = draw_filepath.split("\\")[-1]
 
 airfoil_envelope = airfoil_library.readDat(dat_path=draw_filepath)
