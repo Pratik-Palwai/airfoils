@@ -1,3 +1,0 @@
-Electronics components here. I used an SKR pico to control the XYAZ axes and an Arduino to read the load cell and control its stepper motor.
-
-I have a 24V power supply for the Pico, a 12V PSU for the Arduino, and an adjustable 0-48V PSU for the wire.
