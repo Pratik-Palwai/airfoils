@@ -10,13 +10,13 @@ WING_SPAN = 36 * 25.4 # mm
 FEEDRATE = 250 # mm/min
 CHORD_HEIGHT = 20 # mm
 ROOT_PLANE = 0 # 0 places root on XY tower, 1 places root on AZ tower
-TOOLHEAD_DISTANCE = 24 * 25.4
+TOOLHEAD_DISTANCE = 36 * 25.4
 
 if WING_SPAN > TOOLHEAD_DISTANCE:
     raise ValueError("Wing span is greater than toolhead distance")
 halfspan = WING_SPAN / 2
 
-output_file_path = airfoil_library.root_dir + "gcodes\\wing_" + airfoil_library.cur_time + "_polar_4axis.cnc"
+output_file_path = airfoil_library.root_dir + "gcodes\\wing_" + airfoil_library.cur_time + "_skewed_4axis.cnc"
 gcode_file = open(output_file_path, "w")
 file_extension = FILE_AIRFOIL.split(".")[-1]
 file_name = FILE_AIRFOIL.split("\\")[-1]
@@ -24,10 +24,18 @@ file_name = FILE_AIRFOIL.split("\\")[-1]
 points_root = airfoil_library.readDat(dat_path=FILE_AIRFOIL)
 points_root = airfoil_library.setChord(airfoil_points=points_root, chord=CHORD_ROOT)
 points_root = airfoil_library.applyOffset(airfoil_points=points_root, y_offset=CHORD_HEIGHT)
+points_root = [[x, y, 0] for [x, y] in points_root]
 
 points_outboard = airfoil_library.readDat(dat_path=FILE_AIRFOIL)
 points_outboard = airfoil_library.setChord(airfoil_points=points_outboard, chord=CHORD_OUTBOARD)
 points_outboard = airfoil_library.applyOffset(airfoil_points=points_outboard, x_offset=OUTBOARD_OFFSET, y_offset=CHORD_HEIGHT)
+points_outboard = [[x, y, WING_SPAN] for [x, y] in points_outboard]
+
+trailing_point_root = [points_root[0][0], points_root[0][1], 0]
+trailing_point_outboard = [points_outboard[0][0], points_outboard[0][1], WING_SPAN]
+trailing_vector = [(trailing_point_outboard[i] - trailing_point_root[i]) for i in range(len(trailing_point_root))]
+
+print("Trailing vector:", trailing_vector)
 
 points_opposite = []
 
@@ -55,32 +63,3 @@ gcode_file.write("; Outboard chord: " + str(CHORD_OUTBOARD) + " mm | Outboard of
 gcode_file.write("; Requested FEEDRATE: " + str(FEEDRATE) + " mm/min | Chord height: " + str(CHORD_HEIGHT) + " mm\n\n")
 
 gcode_file.write(airfoil_library.gcodeHeader(feed_mode="inverse"))
-
-if ROOT_PLANE == 0:
-    points_left = points_root
-    points_right = points_opposite
-elif ROOT_PLANE == 1:
-    points_left = points_opposite
-    points_right = points_root
-
-[x_trailing, y_trailing] = [points_left[0][0], points_left[0][1]]
-[a_trailing, z_trailing] = [points_right[0][0], points_right[0][1]]
-gcode_file.write(airfoil_library.moveCommand(x_trailing, y_trailing, a_trailing, z_trailing, 2000, rapid=True))
-gcode_file.write("\n")
-
-for i in range(1, len(points_left)):
-    [x, y] = [points_left[i][0], points_left[i][1]]
-    [a, z] = [points_right[i][0], points_right[i][1]]
-
-    [x_p, y_p] = [points_left[i - 1][0], points_left[i - 1][1]]
-    [a_p, z_p] = [points_right[i - 1][0], points_right[i - 1][1]]
-
-    dt = airfoil_library.inverseTime(x_p, x, y_p, y, a_p, a, z_p, z, FEEDRATE, halfspan, TOOLHEAD_DISTANCE)
-
-    gcode_file.write(airfoil_library.moveCommand(x, y, a, z, dt))
-
-gcode_file.write("\n")
-gcode_file.write("G94 ; Return to units/mm motion mode\n")
-
-print("Wing g-code file:", output_file_path)
-gcode_file.close()

@@ -1,10 +1,10 @@
 import airfoil_library
 import matplotlib.pyplot as plt
 
-draw_filepath = airfoil_library.root_dir + "airfoils\\6414.dat"
-filename = draw_filepath.split("\\")[-1]
+FILE_AIRFOIL = airfoil_library.root_dir + "airfoils\\6414.dat"
+filename = FILE_AIRFOIL.split("\\")[-1]
 
-airfoil_envelope = airfoil_library.readDat(dat_path=draw_filepath)
+airfoil_envelope = airfoil_library.readDat(dat_path=FILE_AIRFOIL)
 airfoil_envelope = airfoil_library.setChord(airfoil_envelope, chord=1)
 airfoil_envelope_transpose = [[], []]
 
